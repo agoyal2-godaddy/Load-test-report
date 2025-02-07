@@ -1,0 +1,39 @@
+name: Load Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - dev-private
+          - stage
+          - prod
+        default: 'dev-private'
+      token:
+        description: 'Github Token'
+        required: true
+        type: string
+        default: "bjh"
+
+jobs:
+  run-load-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Docker
+        uses: docker/setup-docker-action@v4
+      - name: Start Minikube
+        id: minikube
+        uses: hiberbee/github-action-minikube@latest
+      - name: Get Minikube IP
+        run: echo ${{ steps.minikube.outputs.ip }}
+      - name: Go to Directory and setup .env
+        run: |
+         
+         echo "K6_TOKEN=${{ inputs.token }}" >> .env
+         cat .env
